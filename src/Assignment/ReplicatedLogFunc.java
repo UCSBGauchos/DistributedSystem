@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 public class ReplicatedLogFunc{
 	
+	//unique ID;
+	int tramissionID = 0;
 	//three replicas
 	ArrayList<Node> replicaList = new ArrayList<Node>();
 	//initialize the local time table 
@@ -81,8 +83,12 @@ public class ReplicatedLogFunc{
 			System.out.println();
 		}
 	}
-	public void sendLog(int sourceReplicaID){
-		
+	public int sendLog(int sourceReplicaID, int destReplicaID){
+		Node replica = replicaList.get(sourceReplicaID-1);
+		Message newMsg = new Message(replica.log, replica.twoDimensionalTimeTable);
+		tramissionID++;
+		System.out.println("tramission number is "+tramissionID);
+		return tramissionID;	
 	}
 	public void recvLog(int transmitID){
 		
@@ -124,6 +130,7 @@ public class ReplicatedLogFunc{
 		rl.getValue(1, "x");
 		rl.getValue(2, "x");
 		rl.printState(1);
+		rl.sendLog(1, 2);
 		
 		
 		
