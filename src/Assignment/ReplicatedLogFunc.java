@@ -225,5 +225,6 @@ public class ReplicatedLogFunc{
 		rl.printState(2);
 		rl.recvLog(1);
 		rl.printState(2);
+		rl.getValue(2, "x");
 	}
 }
