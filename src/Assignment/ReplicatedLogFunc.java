@@ -8,6 +8,8 @@ public class ReplicatedLogFunc{
 	int tramissionID = 0;
 	//three replicas
 	ArrayList<Node> replicaList = new ArrayList<Node>();
+	//the list of the message
+	ArrayList<Message> msgList = new ArrayList<Message>();
 	//initialize the local time table 
 	public void init(int [][] timeTable){
 		for(int i=0; i<timeTable.length; i++){
@@ -15,6 +17,13 @@ public class ReplicatedLogFunc{
 				timeTable[i][j] = 0;
 			}
 		}
+	}
+	
+	//hasrec function
+	public boolean hasrec(int Ti, Event eR, int k){
+		Node replica = replicaList.get(Ti);
+		int [][] timeTable = replica.twoDimensionalTimeTable;
+		return (timeTable[k-1][eR.NodeID-1]>=eR.time);
 	}
 	
 	public void increment(int replicaID, String key){
@@ -77,20 +86,47 @@ public class ReplicatedLogFunc{
 				}
 				System.out.println();
 			}
-			for(Event e: replica.log){
-				System.out.print("log is "+e.operationType+" ");
+			if(replica.log.size()==0){
+				System.out.println("nothing in the log");
+			}else{
+				for(Event e: replica.log){
+					System.out.print("log is "+e.operationType+" ");
+				}
+				System.out.println();
 			}
-			System.out.println();
 		}
 	}
 	public int sendLog(int sourceReplicaID, int destReplicaID){
 		Node replica = replicaList.get(sourceReplicaID-1);
-		Message newMsg = new Message(replica.log, replica.twoDimensionalTimeTable);
+		ArrayList<Event> NP = new ArrayList<Event>();
+		for(Event e: replica.log){
+			if(!hasrec(sourceReplicaID, e, destReplicaID)){
+				NP.add(e);
+			}
+		}
 		tramissionID++;
-		System.out.println("tramission number is "+tramissionID);
+		Message newMsg = new Message(NP, replica.twoDimensionalTimeTable, sourceReplicaID, destReplicaID, tramissionID);
+		System.out.println("The msg information is ");
+		System.out.println("TransID is "+newMsg.transID);
+		System.out.println("sourceID is "+newMsg.transID);
+		System.out.println("destID is "+newMsg.destID);
+		msgList.add(newMsg);
+		System.out.println("add this message to the list.......");
 		return tramissionID;	
 	}
 	public void recvLog(int transmitID){
+		int index = 0;
+		for(Message msg: msgList){
+			if(msg.transID == transmitID){
+				break;
+			}
+			index++;
+		}
+		Message messageExpected = msgList.get(index);
+		Node remote = replicaList.get(messageExpected.destID-1);
+		remote.log.addAll(messageExpected.log);
+		int [][] timeTableRemote = remote.twoDimensionalTimeTable;
+		
 		
 	}
 	
@@ -131,8 +167,9 @@ public class ReplicatedLogFunc{
 		rl.getValue(2, "x");
 		rl.printState(1);
 		rl.sendLog(1, 2);
-		
-		
-		
+		rl.increment(1, "Y");
+		rl.printState(2);
+		rl.recvLog(1);
+		rl.printState(2);
 	}
 }
