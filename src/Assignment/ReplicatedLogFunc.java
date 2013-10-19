@@ -216,15 +216,24 @@ public class ReplicatedLogFunc{
 		rl.replicaList.add(n2);
 		rl.replicaList.add(n3);
 		
+//		rl.increment(1, "x");
+//		rl.getValue(1, "x");
+//		rl.getValue(2, "x");
+//		rl.printState(1);
+//		rl.sendLog(1, 2);
+//		rl.increment(1, "Y");
+//		rl.printState(2);
+//		rl.recvLog(1);
+//		rl.printState(2);
+//		rl.getValue(2, "x");
+		
 		rl.increment(1, "x");
-		rl.getValue(1, "x");
-		rl.getValue(2, "x");
-		rl.printState(1);
 		rl.sendLog(1, 2);
-		rl.increment(1, "Y");
-		rl.printState(2);
+		rl.increment(1, "y");
 		rl.recvLog(1);
 		rl.printState(2);
-		rl.getValue(2, "x");
+		
+		
+		
 	}
 }

@@ -17,5 +17,4 @@ public class Node {
 		this.log = _log;
 		this.hashmap = new HashMap<String, Integer>();
 	}
-	
 }
