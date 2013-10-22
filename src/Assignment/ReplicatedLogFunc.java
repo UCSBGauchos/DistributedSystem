@@ -184,56 +184,40 @@ public class ReplicatedLogFunc{
 		}
 	}
 	
-	public static void main(String [] args){
-		ReplicatedLogFunc rl = new ReplicatedLogFunc();
-		
-		//system clock
-		int initialClock1=0;
-		int initialClock2=0;
-		int initialClock3=0;
-		
-		int replicaNum = 3;
-		
-		int [][] timeTable1 = new int [replicaNum][replicaNum];
-		int [][] timeTable2 = new int [replicaNum][replicaNum];
-		int [][] timeTable3 = new int [replicaNum][replicaNum];
-		rl.init(timeTable1);
-		rl.init(timeTable2);
-		rl.init(timeTable3);
-		
-		//initial part of the algorithm, init the log and timetable
-		ArrayList<Event> log1 = new ArrayList<Event>();
-		ArrayList<Event> log2 = new ArrayList<Event>();
-		ArrayList<Event> log3 = new ArrayList<Event>();
-		
-		//Now create 3 replicas
-		Node n1 = new Node(initialClock1, timeTable1, log1);
-		Node n2 = new Node(initialClock2, timeTable2, log2);
-		Node n3 = new Node(initialClock3, timeTable3, log3);
-		
-		//add these three replicas into the replicaList
-		rl.replicaList.add(n1);
-		rl.replicaList.add(n2);
-		rl.replicaList.add(n3);
-		
-//		rl.increment(1, "x");
-//		rl.getValue(1, "x");
-//		rl.getValue(2, "x");
-//		rl.printState(1);
-//		rl.sendLog(1, 2);
-//		rl.increment(1, "Y");
-//		rl.printState(2);
-//		rl.recvLog(1);
-//		rl.printState(2);
-//		rl.getValue(2, "x");
-		
-		rl.increment(1, "x");
-		rl.sendLog(1, 2);
-		rl.increment(1, "y");
-		rl.recvLog(1);
-		rl.printState(2);
-		
-		
-		
-	}
+//	public static void main(String [] args){
+//		ReplicatedLogFunc rl = new ReplicatedLogFunc();
+//		
+//		//system clock
+//		int initialClock1=0;
+//		int initialClock2=0;
+//		int initialClock3=0;
+//		
+//		int replicaNum = 3;
+//		
+//		int [][] timeTable1 = new int [replicaNum][replicaNum];
+//		int [][] timeTable2 = new int [replicaNum][replicaNum];
+//		int [][] timeTable3 = new int [replicaNum][replicaNum];
+//		rl.init(timeTable1);
+//		rl.init(timeTable2);
+//		rl.init(timeTable3);
+//		
+//		//initial part of the algorithm, init the log and timetable
+//		ArrayList<Event> log1 = new ArrayList<Event>();
+//		ArrayList<Event> log2 = new ArrayList<Event>();
+//		ArrayList<Event> log3 = new ArrayList<Event>();
+//		
+//		//Now create 3 replicas
+//		Node n1 = new Node(initialClock1, timeTable1, log1);
+//		Node n2 = new Node(initialClock2, timeTable2, log2);
+//		Node n3 = new Node(initialClock3, timeTable3, log3);
+//		
+//		//add these three replicas into the replicaList
+//		rl.replicaList.add(n1);
+//		rl.replicaList.add(n2);
+//		rl.replicaList.add(n3);
+//		
+//
+//		
+//		
+//	}
 }
