@@ -126,7 +126,7 @@ public class ReplicatedLogFunc{
 //		System.out.println("sourceID is "+newMsg.transID);
 //		System.out.println("destID is "+newMsg.destID);
 		msgList.add(newMsg);
-		System.out.println("add this message to the list.......");
+		System.out.println("add this message to the message list.......");
 		return tramissionID;	
 	}
 	public void recvLog(int transmitID){
@@ -137,6 +137,7 @@ public class ReplicatedLogFunc{
 			}
 			index++;
 		}
+		//get the message from the msgList
 		Message messageExpected = msgList.get(index);
 		ArrayList<Event> NP = messageExpected.log;
 		Node localNode = replicaList.get(messageExpected.destID-1);
