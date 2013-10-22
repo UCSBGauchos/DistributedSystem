@@ -40,7 +40,8 @@ public class ReplicatedLogFunc{
 		if(replica == null){
 			return;
 		}
-		int newTime = replica.localClock+1;
+		replica.localClock++;
+		int newTime = replica.localClock;
 		Event newEvent = new Event("increnemt("+key+")", newTime, replicaID); //event contains op, ti, Ni
 		replica.twoDimensionalTimeTable[replicaID-1][replicaID-1] = newTime;
 		replica.log.add(newEvent);
@@ -58,11 +59,13 @@ public class ReplicatedLogFunc{
 		if(replica == null){
 			return;
 		}
-		int newTime = replica.localClock+1;
+		replica.localClock++;
+		int newTime = replica.localClock;
 		Event newEvent = new Event("decrement("+key+")", newTime, replicaID);
 		replica.twoDimensionalTimeTable[replicaID-1][replicaID-1] = newTime;
 		replica.log.add(newEvent);
 		if(!replica.hashmap.containsKey(key)){
+			System.out.println("No such Key!");
 			return;
 		}else{
 			int oldValue = replica.hashmap.get(key);
@@ -70,6 +73,8 @@ public class ReplicatedLogFunc{
 				int newValue = oldValue-1;
 				replica.hashmap.put(key, newValue);
 			}else{
+				System.out.println("Value is zero, remove it!");
+				replica.hashmap.remove(key);
 				return;
 			}
 		}
@@ -113,6 +118,7 @@ public class ReplicatedLogFunc{
 				NP.add(e);
 			}
 		}
+		//make sure each message is unique
 		tramissionID++;
 		Message newMsg = new Message(NP, replica.twoDimensionalTimeTable, sourceReplicaID, destReplicaID, tramissionID);
 //		System.out.println("The msg information is ");
@@ -157,12 +163,14 @@ public class ReplicatedLogFunc{
 						int oldValue = localNode.hashmap.get(key);
 						int newValue = oldValue-1;
 						localNode.hashmap.put(key, newValue);
+					}else{
+						localNode.hashmap.remove(key);
 					}
 				}
 			}
 		}
 		int [][] localTimeTable = localNode.twoDimensionalTimeTable;
-		int [][] remoteTimeTable = remoteNode.twoDimensionalTimeTable;
+		int [][] remoteTimeTable = messageExpected.twoDimensionalTimeTable; //timetable should be from the message
 		
 		for(int i=0; i<localTimeTable.length; i++){
 			localTimeTable[messageExpected.destID-1][i] = Math.max(localTimeTable[messageExpected.destID-1][i], remoteTimeTable[messageExpected.sourceID-1][i]);
@@ -183,41 +191,4 @@ public class ReplicatedLogFunc{
 			}
 		}
 	}
-	
-//	public static void main(String [] args){
-//		ReplicatedLogFunc rl = new ReplicatedLogFunc();
-//		
-//		//system clock
-//		int initialClock1=0;
-//		int initialClock2=0;
-//		int initialClock3=0;
-//		
-//		int replicaNum = 3;
-//		
-//		int [][] timeTable1 = new int [replicaNum][replicaNum];
-//		int [][] timeTable2 = new int [replicaNum][replicaNum];
-//		int [][] timeTable3 = new int [replicaNum][replicaNum];
-//		rl.init(timeTable1);
-//		rl.init(timeTable2);
-//		rl.init(timeTable3);
-//		
-//		//initial part of the algorithm, init the log and timetable
-//		ArrayList<Event> log1 = new ArrayList<Event>();
-//		ArrayList<Event> log2 = new ArrayList<Event>();
-//		ArrayList<Event> log3 = new ArrayList<Event>();
-//		
-//		//Now create 3 replicas
-//		Node n1 = new Node(initialClock1, timeTable1, log1);
-//		Node n2 = new Node(initialClock2, timeTable2, log2);
-//		Node n3 = new Node(initialClock3, timeTable3, log3);
-//		
-//		//add these three replicas into the replicaList
-//		rl.replicaList.add(n1);
-//		rl.replicaList.add(n2);
-//		rl.replicaList.add(n3);
-//		
-//
-//		
-//		
-//	}
 }
