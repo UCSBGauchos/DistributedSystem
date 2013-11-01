@@ -9,6 +9,9 @@ public class Paxos {
 	ArrayList<PrepareProposeMessage> ppMsgList = new ArrayList<PrepareProposeMessage>();
 	ArrayList<PrepareRespondMessage> prMsgList = new ArrayList<PrepareRespondMessage>();
 	ArrayList<AcceptSendMessage> accSendMsgList = new ArrayList<AcceptSendMessage>();
+	ArrayList<AcceptRecvMessage> accRecvMsgList = new ArrayList<AcceptRecvMessage>();
+	
+	
 	
 	Process [] procList = new Process[100];
 	
@@ -34,6 +37,11 @@ public class Paxos {
 			AcceptSendMessage msg = new AcceptSendMessage("accept", bal, sPID, dPID, value);
 			return msg;
 		}
+	}
+	
+	public AcceptRecvMessage createACCRecvMsg(int sPID, int dPID, BallotNum bal, int value){
+		AcceptRecvMessage msg = new AcceptRecvMessage("accept", bal, sPID, dPID, value);
+		return msg;
 	}
 	
 	// when call send function, we will create send msg and put them in the send cache
@@ -63,6 +71,16 @@ public class Paxos {
 		int sPID = msgWithBiggestBal.dPID;
 		int dPID = msgWithBiggestBal.sPID;
 		accSendMsgList.add(createACSendMsg(sPID, dPID, msgWithBiggestBal.acc, msgWithBiggestBal.value));
+	}
+	
+	public void recvAccept(ArrayList<AcceptSendMessage> accSendMsgList){
+		for(AcceptSendMessage msg: accSendMsgList){
+			int sPID = msg.dPID;
+			int dPID = msg.sPID;
+			if(msg.bal.num>=procList[sPID].bal.num){
+				accRecvMsgList.add(createACCRecvMsg(sPID, dPID, msg.bal, msg.value));
+			}
+		}
 	}
 	
 	
@@ -98,6 +116,19 @@ public class Paxos {
 			System.out.println("value is "+assMsg.value);
 		}
 	}
+	
+	public void getAccRecvMsg(ArrayList<AcceptRecvMessage> accRecvMsgList){
+		System.out.println("************Recv accept****************");
+		for(AcceptRecvMessage recvMsg: accRecvMsgList){
+			System.out.println("phase is "+recvMsg.phase);
+			System.out.println("souce is "+recvMsg.sPID);
+			System.out.println("dest is "+recvMsg.dPID);
+			System.out.println("ballot is "+recvMsg.bal.num);
+			System.out.println("value is "+recvMsg.value);
+		}
+	}
+	
+	
 	
 	public static void main(String [] args){
 		Paxos p = new Paxos();
@@ -135,6 +166,9 @@ public class Paxos {
 		
 		p.sendAccept(p.prMsgList);
 		p.getAccSendMsg(p.accSendMsgList);
+		
+		p.recvAccept(p.accSendMsgList);
+		p.getAccRecvMsg(p.accRecvMsgList);
 		
 	}
 }
