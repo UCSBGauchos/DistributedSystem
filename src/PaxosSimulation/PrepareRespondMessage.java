@@ -7,11 +7,11 @@ public class PrepareRespondMessage {
 	int dPID;
 	int value;
 	
-	public PrepareRespondMessage(String _phase, AcceptNum _acc, int _sPID, int _dPID){
+	public PrepareRespondMessage(String _phase, AcceptNum _acc, int _value, int _sPID, int _dPID){
 		this.phase = _phase;
 		this.acc = _acc;
 		this.sPID = _sPID;
 		this.dPID = _dPID;
-		this.value = -1;
+		this.value = _value;
 	}
 }

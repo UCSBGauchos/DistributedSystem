@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 public class Paxos {
 	
+	static int uniqueID = 0;
+	
 	ArrayList<PrepareProposeMessage> ppMsgList = new ArrayList<PrepareProposeMessage>();
 	ArrayList<PrepareRespondMessage> prMsgList = new ArrayList<PrepareRespondMessage>();
 	ArrayList<AcceptSendMessage> accSendMsgList = new ArrayList<AcceptSendMessage>();
@@ -16,31 +18,11 @@ public class Paxos {
 	Process [] procList = new Process[100];
 	
 	public PrepareProposeMessage createPrepareProposeMsg(int sPID, int dPID, BallotNum bal){
-		BallotNum newBal = new BallotNum(sPID);
+		//each time send a proposer, get a unique ID
+		int newNum = uniqueID;
+		uniqueID++;
+		BallotNum newBal = new BallotNum(newNum, sPID);
 		PrepareProposeMessage msg = new PrepareProposeMessage("prepare", newBal, sPID, dPID);
-		return msg;
-	}
-	
-	public PrepareRespondMessage createPrepareRespondMsg(int sPID, int dPID, BallotNum bal){
-		AcceptNum acc = new AcceptNum(bal.num,sPID);
-		PrepareRespondMessage msg = new PrepareRespondMessage("ack", acc, sPID, dPID);
-		return msg;
-	}
-	
-	public AcceptSendMessage createACSendMsg(int sPID, int dPID, AcceptNum acc, int value){
-		BallotNum bal = new BallotNum(sPID);
-		bal.num = acc.num;
-		if(value == -1){
-			AcceptSendMessage msg = new AcceptSendMessage("accept", bal, sPID, dPID, procList[sPID].value);
-			return msg;
-		}else{
-			AcceptSendMessage msg = new AcceptSendMessage("accept", bal, sPID, dPID, value);
-			return msg;
-		}
-	}
-	
-	public AcceptRecvMessage createACCRecvMsg(int sPID, int dPID, BallotNum bal, int value){
-		AcceptRecvMessage msg = new AcceptRecvMessage("accept", bal, sPID, dPID, value);
 		return msg;
 	}
 	
@@ -53,16 +35,37 @@ public class Paxos {
 		}
 	}
 	
+	public PrepareRespondMessage createPrepareRespondMsg(int sPID, int dPID, BallotNum bal){
+		AcceptNum acc = new AcceptNum(bal.num,sPID);
+		int AcceptValue = procList[sPID].value;
+		PrepareRespondMessage msg = new PrepareRespondMessage("ack", acc, AcceptValue, sPID, dPID);
+		return msg;
+	}
+	
 	public void recvPromise(ArrayList<PrepareProposeMessage> msgList, int myPID){
 		for(PrepareProposeMessage msg: msgList){
 			if(msg.dPID == myPID){
 				int sPID = msg.sPID;
 				// only if the send bal's num is bigger than local bal, local will send back respond
 				if(msg.bal.num>=procList[myPID].bal.num){
+					//update the local bal number
 					procList[myPID].bal.num = msg.bal.num;
-					prMsgList.add(createPrepareRespondMsg(myPID, sPID, msg.bal));
+					prMsgList.add(createPrepareRespondMsg(myPID, sPID, procList[myPID].bal));
 				}
 			}
+		}
+	}
+	
+	
+	
+	public AcceptSendMessage createACSendMsg(int sPID, int dPID, AcceptNum acc, int value){
+		BallotNum bal = new BallotNum(acc.num, sPID);
+		if(value == -1){
+			AcceptSendMessage msg = new AcceptSendMessage("accept", bal, sPID, dPID, procList[sPID].value);
+			return msg;
+		}else{
+			AcceptSendMessage msg = new AcceptSendMessage("accept", bal, sPID, dPID, value);
+			return msg;
 		}
 	}
 	
@@ -73,11 +76,18 @@ public class Paxos {
 		accSendMsgList.add(createACSendMsg(sPID, dPID, msgWithBiggestBal.acc, msgWithBiggestBal.value));
 	}
 	
+	public AcceptRecvMessage createACCRecvMsg(int sPID, int dPID, BallotNum bal, int value){
+		AcceptRecvMessage msg = new AcceptRecvMessage("accept", bal, sPID, dPID, value);
+		return msg;
+	}
+	
 	public void recvAccept(ArrayList<AcceptSendMessage> accSendMsgList){
 		for(AcceptSendMessage msg: accSendMsgList){
 			int sPID = msg.dPID;
 			int dPID = msg.sPID;
 			if(msg.bal.num>=procList[sPID].bal.num){
+				procList[sPID].bal.num = msg.bal.num;
+				procList[sPID].value = msg.value;
 				accRecvMsgList.add(createACCRecvMsg(sPID, dPID, msg.bal, msg.value));
 			}
 		}
@@ -135,7 +145,7 @@ public class Paxos {
 		
 		Process p1 = new Process(1, 100);
 		Process p2 = new Process(2, 200);
-		Process Acceptor = new Process(0, 0);
+		Process Acceptor = new Process(0, -1);
 		
 		//procList[PID] = process
 		p.procList[1] = p1;
@@ -152,11 +162,7 @@ public class Paxos {
 		
 		//p1 send prepare propose to acceptor;
 		p.sendPropose(1, dPIDs);
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		
 		p.sendPropose(2, dPIDs);
 		p.getppMsgInfo(p.ppMsgList);
 		

@@ -4,8 +4,9 @@ public class BallotNum {
 	int num;
 	int PID;
 	
-	public BallotNum(int _PID){
-		this.num = new java.util.Date().getSeconds();
+	
+	public BallotNum(int _num, int _PID){
+		this.num = _num;
 		this.PID = _PID;
 	}
 }
